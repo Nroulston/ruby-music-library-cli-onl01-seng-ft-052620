@@ -16,9 +16,25 @@ class MusicLibraryController
     puts "To quit, type 'exit'."
     puts "What would you like to do?"
     input = gets.chomp
+    input_check(input)
     loop_until_exit(input)
   end
-
+  def input_check(input)
+    case input
+    when "list songs"
+      list_songs
+    when "list artists"
+      list_artists
+    when "list genres"
+      list_genres
+    when "list artist"
+      list_songs_by_artist
+    when "list genre"
+      list_songs_by_genre
+    when "play song"
+      play_song
+    end
+  end
   def loop_until_exit(input)
     call unless input == 'exit'
   end
@@ -30,16 +46,53 @@ class MusicLibraryController
    end
   end
   def list_artists
-    alpha_artist_list = Artist.all.sort! { |a, b|  a.artist.name  <=> b.artist.name }
-    alpha_artist_list.uniq! {|song| song.artist}
-   
-   binding.pry 
-   
-    alpha_artist_list.each_with_index do |song, index|
-     puts "#{index + 1}. #{song.artist.name}"
+    alpha_artist_list = Artist.all.sort! { |a, b|  a.name  <=> b.name }
+    alpha_artist_list.uniq! {|artist| artist.name}
+    alpha_artist_list.each_with_index do |artist, index|
+     puts "#{index + 1}. #{artist.name}"
    end
-  
   end
 
+  def list_genres
+    alpha_genre_list = Genre.all.sort! { |a, b|  a.name  <=> b.name }
+    alpha_genre_list.uniq! {|genre| genre.name}
+    alpha_genre_list.each_with_index do |genre, index|
+     puts "#{index + 1}. #{genre.name}"
+    end
+  end
+
+  def list_songs_by_artist
+    puts "Please enter the name of an artist:"
+    input = gets.chomp
+
+    artist_songs = Song.all.select {|song| song.artist.name == input}
+    sorted_songs = artist_songs.sort! { |a, b|  a.name  <=> b.name }
+    sorted_songs.each_with_index do |song, index|
+      puts "#{index + 1}. #{song.name} - #{song.genre.name}"
+     end
+  end
+
+  def list_songs_by_genre
+    puts "Please enter the name of a genre:"
+    input = gets.chomp
+
+    songs = Song.all.select {|song| song.genre.name == input}
+    sorted_songs = songs.sort! { |a, b|  a.name  <=> b.name }
+    sorted_songs.each_with_index do |song, index|
+      puts "#{index + 1}. #{song.artist.name} - #{song.name}"
+     end
+  end
+
+  def play_song
+
+    puts "Which song number would you like to play?"
+    Song.all.sort! { |a, b|  a.name  <=> b.name }
+    input = gets.chomp.to_i
+    all = Song.all
+    if input <= all.count && input > 0
+      puts "Playing #{all[input - 1].name} by #{all[input - 1].artist.name}"
+
+   end
+  end
 
 end
